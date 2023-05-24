@@ -1,0 +1,2 @@
+python run_vfl.py --ps_ip=localhost --ps_port=8888 --world_size=4 --is_asyn --task_name=a9a --use_gpu --rank=0
+python run_VAFL.py --ps_ip=localhost --ps_port=8888 --world_size=4 --task_name=cifar --use_gpu --rank=0

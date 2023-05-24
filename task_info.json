@@ -1,0 +1,73 @@
+{
+    "mnist":{
+        "data_dir": "data",
+        "client_num": 3,
+        "n_local": [1,1,1,1],
+        "bounds": [3,3,3,3],
+        "train_batch_size": 256,
+        "test_batch_size": 256,
+        "epochs": 10,
+        "div": [0,10,22,28],
+        "lr": 0.005,
+        "delta_T": 20,
+        "CT": 500,
+        "Tw": 20,
+        "c0": 0.1,
+        "estimation_D": 5,
+        "search_CT": 50
+    },
+
+    "cifar":{
+        "data_dir": "data/cifar10",
+        "client_num": 3,
+        "n_local": [2,2,2,2],
+        "bounds": [3,3,3,3],
+        "train_batch_size": 128,
+        "test_batch_size": 256,
+        "epochs": 1000,
+        "div": [0,10,24,32],
+        "lr": 0.01,
+        "delta_T": 20,
+        "CT": 3000,
+        "Tw": 20,
+        "c0": 0.5,
+        "estimation_D": 5,
+        "search_CT": 50
+    },
+
+    "a9a":{
+        "data_dir": "data/a9a",
+        "client_num": 3,
+        "n_local": [6,6,6,6],
+        "bounds": [3,3,3,3],
+        "train_batch_size": 256,
+        "test_batch_size": 256,
+        "epochs": 1000,
+        "div": [0,10,33,123],
+        "lr": 0.01,
+        "delta_T": 20,
+        "CT": 100,
+        "Tw": 20,
+        "c0": 0.5,
+        "estimation_D": 5,
+        "search_CT": 20
+    },
+
+    "mimic":{
+        "data_dir": "data/mimic",
+        "client_num": 3,
+        "n_local": [5,5,5,5],
+        "bounds": [3,3,3,3],
+        "train_batch_size": 32,
+        "test_batch_size": 256,
+        "epochs": 1000,
+        "div": [0,25,50,76],
+        "lr": 0.001,
+        "delta_T": 20,
+        "CT": 800,
+        "Tw": 20,
+        "c0": 1,
+        "estimation_D": 5,
+        "search_CT": 50
+    }
+}
