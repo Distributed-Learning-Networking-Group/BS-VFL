@@ -91,7 +91,7 @@ def run_ps(args):
     party,train_loader,test_loader,epochs,bound,lr,delta_T,CT = get_task_data(task_name=args.task_name,id=0,is_asyn=args.is_asyn,use_gpu=args.use_gpu)
     train_batches = len(train_loader)
     test_batches = len(test_loader)
-    recording_period = 100
+    recording_period = 20
     global_step = 0
     running_time = 0
     recv_wait_time = 0
@@ -213,8 +213,8 @@ def run_ps(args):
                     G = symbols('G')
                     solution = solve(
                         (-E * ((N * t2)**0.5) / (c0 * ((Cl * N_prime)**0.5) * ((Q_l**3)**0.5))
-                         + G * t2 * (Q_last**2) / Cl
-                         + (9*N_prime * (D+1) / (4*D+2)) * G * t2 * (Q_l**2) / Cl
+                         + 2*G * ((t2 * Q_last)**2) * Q_l / (Cl**2)
+                         + 9*G * t2 * (D+1) * (Q_l**2) / (Cl * (2*(D**2) + D))
                          ),
                         G
                     )
@@ -222,19 +222,19 @@ def run_ps(args):
                 else:
                     Q_last = Q_l
                     f = lambda Q_l:abs(-E * ((N * t2)**0.5) / (c0 * ((Cl * N_prime)**0.5) * ((Q_l**3)**0.5))
-                         + G * t2 * (Q_last**2) / Cl
-                         + (9*N_prime * (D+1) / (4*D+2)) * G * t2 * (Q_l**2) / Cl
+                         + 2*G * ((t2 * Q_last)**2) * Q_l / (Cl**2)
+                         + 9*G * t2 * (D+1) * (Q_l**2) / (Cl * (2*(D**2) + D))
                          )
                     Q_l = gss(f,0,Q_last*2)
                     print("Q_l:",Q_l)
                 
                 # Q = int(Decimal(Q_l).quantize(Decimal("1."), rounding = "ROUND_HALF_UP")) if Q_l > 1 else 1
-                if Q_l > 1:
-                    Q = math.ceil(Q_l) if Q_l - int(Q_l) > np.random.rand() else int(Q_l)
-                else:
-                    Q = 1
+                # if Q_l > 1:
+                #     Q = math.ceil(Q_l) if Q_l - int(Q_l) > np.random.rand() else int(Q_l)
+                # else:
+                #     Q = 1
                 # party.n_iter = Q
-                # send_data([torch.tensor(Q,dtype=torch.float32) for _ in rank_list],rank_list,tag=1)
+                send_data([torch.tensor(Q,dtype=torch.float32) for _ in rank_list],rank_list,tag=1)
 
                 Cl = t2 * N_prime * D * Q_l
                 last_t2 = t2 - gap_time
@@ -292,6 +292,9 @@ def run_ps(args):
             for i,grad in enumerate(parties_grad_list):
                 parties_grad_list[i] = grad.contiguous().cpu()
             grad_list_queue.put(parties_grad_list)
+
+            for _ in range(Q):
+                time.sleep(0.01)
             
             timestamp3 = time.time()
             gap = np.random.poisson(1) * last_t2 * gap_scale
@@ -440,7 +443,7 @@ def run_client(args):
     print('bound',bound)
     train_batches = len(train_loader)
     test_batches = len(test_loader)
-    recording_period = 100
+    recording_period = 20
     global_step = 0
     waiting_grad_num = 0
     t0 = 0
