@@ -151,47 +151,47 @@ def run_ps(args):
 
     print(f'server start with batches={len(train_loader)}')
 
-    if True:
-        if not predict_shape_list:
-            tmp = torch.zeros(2).long()
-            predict_shape_list = [torch.zeros_like(tmp) for _ in range(args.world_size)]
-            print('gather shape..',tmp.shape)
-            dist.gather(tensor=tmp,gather_list=predict_shape_list)
-            print('gather shape ok')
+    # if True:
+    #     if not predict_shape_list:
+    #         tmp = torch.zeros(2).long()
+    #         predict_shape_list = [torch.zeros_like(tmp) for _ in range(args.world_size)]
+    #         print('gather shape..',tmp.shape)
+    #         dist.gather(tensor=tmp,gather_list=predict_shape_list)
+    #         print('gather shape ok')
 
-            predict_shape_list.pop(0)
-            for i,shape in enumerate(predict_shape_list):
-                predict_shape_list[i] = shape.tolist()
-            print(predict_shape_list)
+    #         predict_shape_list.pop(0)
+    #         for i,shape in enumerate(predict_shape_list):
+    #             predict_shape_list[i] = shape.tolist()
+    #         print(predict_shape_list)
 
-            predict_thread = Thread(target=process_communicate,daemon=True,args=('pull',predict_h_list_queue,rank_list,1,predict_shape_list))
-            predict_thread.start()
+    #         predict_thread = Thread(target=process_communicate,daemon=True,args=('pull',predict_h_list_queue,rank_list,1,predict_shape_list))
+    #         predict_thread.start()
 
-        loss_list = []
-        correct_list = []
-        acc_list = []
+    #     loss_list = []
+    #     correct_list = []
+    #     acc_list = []
 
-        for _, test_target in test_loader:
-            predict_h_list = predict_h_list_queue.get()
-            for i,h in enumerate(predict_h_list):
-                predict_h_list[i] = h.to(device)
+    #     for _, test_target in test_loader:
+    #         predict_h_list = predict_h_list_queue.get()
+    #         for i,h in enumerate(predict_h_list):
+    #             predict_h_list[i] = h.to(device)
             
-            predict_y = test_target.to(device)
-            loss,correct,accuracy = party.predict(predict_h_list,predict_y)
-            loss_list.append(loss)
-            correct_list.append(correct)
-            acc_list.append(accuracy)
-        loss = sum(loss_list) / test_batches
-        correct = sum(correct_list) / test_batches
-        accuracy = sum(acc_list) / test_batches
+    #         predict_y = test_target.to(device)
+    #         loss,correct,accuracy = party.predict(predict_h_list,predict_y)
+    #         loss_list.append(loss)
+    #         correct_list.append(correct)
+    #         acc_list.append(accuracy)
+    #     loss = sum(loss_list) / test_batches
+    #     correct = sum(correct_list) / test_batches
+    #     accuracy = sum(acc_list) / test_batches
 
-        writer.add_scalar("accuracy&step", accuracy, global_step)
-        writer.add_scalar("accuracy&time", accuracy, running_time*1000)
-        log_data["accuracy&step"]['x'].append(global_step)
-        log_data["accuracy&step"]['y'].append(accuracy)
-        log_data["accuracy&time"]['x'].append(running_time*1000)
-        log_data["accuracy&time"]['y'].append(accuracy)
-        print(f'server figure out loss={loss} correct={correct} accuracy={accuracy}\n')
+    #     writer.add_scalar("accuracy&step", accuracy, global_step)
+    #     writer.add_scalar("accuracy&time", accuracy, running_time*1000)
+    #     log_data["accuracy&step"]['x'].append(global_step)
+    #     log_data["accuracy&step"]['y'].append(accuracy)
+    #     log_data["accuracy&time"]['x'].append(running_time*1000)
+    #     log_data["accuracy&time"]['y'].append(accuracy)
+    #     print(f'server figure out loss={loss} correct={correct} accuracy={accuracy}\n')
 
     for ep in range(epochs):
         print(f'server start epoch {ep}')
@@ -293,8 +293,8 @@ def run_ps(args):
                 parties_grad_list[i] = grad.contiguous().cpu()
             grad_list_queue.put(parties_grad_list)
 
-            for _ in range(Q):
-                time.sleep(0.01)
+            # for _ in range(Q):
+            #     time.sleep(0.01)
             
             timestamp3 = time.time()
             gap = np.random.poisson(1) * last_t2 * gap_scale
@@ -470,16 +470,16 @@ def run_client(args):
 
     print(f'client start with batches={len(train_loader)}')
 
-    if True:
-        for test_data, _ in test_loader:
-            predict_x = test_data.to(device)
-            predict_h = party.predict(predict_x)
-            if predict_shape is None:
-                predict_shape = torch.tensor(predict_h.shape)
-                print('gather shape..', predict_shape)
-                dist.gather(tensor=predict_shape)
-                print('gather shape ok')
-            predict_h_queue.put(predict_h.cpu())
+    # if True:
+    #     for test_data, _ in test_loader:
+    #         predict_x = test_data.to(device)
+    #         predict_h = party.predict(predict_x)
+    #         if predict_shape is None:
+    #             predict_shape = torch.tensor(predict_h.shape)
+    #             print('gather shape..', predict_shape)
+    #             dist.gather(tensor=predict_shape)
+    #             print('gather shape ok')
+    #         predict_h_queue.put(predict_h.cpu())
 
     for ep in range(epochs):
         print(f'client start epoch {ep}\n')
@@ -659,11 +659,9 @@ def search_ps(args):
     flag_list = [torch.tensor(1.) for _ in rank_list]
     
     shape_list = []
-    predict_shape_list = []
 
     h_list_queue = Queue()
     grad_list_queue = Queue()
-    predict_h_list_queue = Queue()
 
     send_thread = Thread(target=process_communicate,daemon=True,args=('send',grad_list_queue,rank_list,0))
     send_thread.start()
@@ -694,8 +692,6 @@ def search_ps(args):
         is_finish = False
         loss = None
         party.n_iter = Q
-
-        # writer = SummaryWriter(log_dir=output_dir+time.strftime("%Y%m%d-%H%M"))
 
         # recv_data([torch.tensor(1.) for _ in rank_list],rank_list,tag=3)
         send_data(flag_list,rank_list,tag=3)
@@ -766,8 +762,9 @@ def search_ps(args):
                 timestamp3 = time.time()
                 
                 party.local_update()
+                loss = party.get_loss()
                 if l0 is None:
-                    l0 = party.get_loss()
+                    l0 = loss
 
                 party.local_iterations()
 
@@ -779,51 +776,9 @@ def search_ps(args):
                 print("current_t2",current_t2)
 
                 global_step += 1
-
-                # writer.add_scalar("running_time", running_time, global_step)
-                # writer.add_scalar("recv_wait_time", recv_wait_time, global_step)
             
             if is_finish:
-                if not predict_shape_list:
-                    tmp = torch.zeros(2).long()
-                    predict_shape_list = [torch.zeros_like(tmp) for _ in range(args.world_size)]
-                    print('gather shape..',tmp.shape)
-                    dist.gather(tensor=tmp,gather_list=predict_shape_list)
-                    print('gather shape ok')
-
-                    predict_shape_list.pop(0)
-                    for i,shape in enumerate(predict_shape_list):
-                        predict_shape_list[i] = shape.tolist()
-                    print(predict_shape_list)
-
-                    predict_thread = Thread(target=process_communicate,daemon=True,args=('pull',predict_h_list_queue,rank_list,1,predict_shape_list))
-                    predict_thread.start()
-
-                loss_list = []
-                correct_list = []
-                acc_list = []
-
-                for _, test_target in test_loader:
-                    predict_h_list = predict_h_list_queue.get()
-                    for i,h in enumerate(predict_h_list):
-                        predict_h_list[i] = h.to(device)
-                    
-                    predict_y = test_target.to(device)
-                    loss,correct,accuracy = party.predict(predict_h_list,predict_y)
-                    loss_list.append(loss)
-                    correct_list.append(correct)
-                    acc_list.append(accuracy)
-                loss = sum(loss_list) / test_batches
-                correct = sum(correct_list) / test_batches
-                accuracy = sum(acc_list) / test_batches
-
-                # writer.add_scalar("loss", loss.detach(), global_step)
-                # writer.add_scalar("accuracy&step", accuracy, global_step)
-                # writer.add_scalar("accuracy&time", accuracy, running_time*1000)
-                print(f'server figure out loss={loss} correct={correct} accuracy={accuracy}\n')
-
                 while not h_list_queue.empty(): h_list_queue.get()
-                while not predict_h_list_queue.empty(): predict_h_list_queue.get()
                 break
         
         current_t2 = current_t2 / (current_T * Q)
@@ -869,7 +824,6 @@ def search_cl(args):
     t3 = 0
 
     shape = None
-    predict_shape = None
 
     batch_cache = Queue()
     h_queue = Queue()
@@ -878,10 +832,8 @@ def search_cl(args):
     flag_queue = Queue()
 
     send_thread = Thread(target=process_communicate,daemon=True,args=('send',h_queue,[ps_rank],0))
-    predict_thread = Thread(target=process_communicate,daemon=False,args=('send',predict_h_queue,[ps_rank],1))
     flag_thread = Thread(target=process_communicate,daemon=True,args=('pull',flag_queue,[ps_rank],3,[[]]))
     send_thread.start()
-    predict_thread.start()
     flag_thread.start()
 
     for i in range(10):
@@ -925,18 +877,13 @@ def search_cl(args):
 
                 party.model.train()
 
-                # timestamp1 = time.time()
-
                 data = data.to(device)
                 party.set_batch(data)
                 batch_cache.put([batch_idx,data])
                 print(f'client set batch {batch_idx}\n')
                 
                 party.compute_h()
-                # timestamp2 = time.time()
-                # t0 += timestamp2 - timestamp1
                 h = party.get_h()
-                # timestamp3 = time.time()
                 h_queue.put(h.cpu())
                 h_count += 1
                 if shape is None:
@@ -950,43 +897,23 @@ def search_cl(args):
 
                 waiting_grad_num += 1
 
-                # timestamp4 = time.time()
-                # t3 += timestamp4 - timestamp3
-
                 while waiting_grad_num > bound or not grad_queue.empty() or (ep == epochs - 1 and batch_idx == train_batches - 1 and waiting_grad_num > 0):
                     grad = grad_queue.get()[0].to(device)
-                    # timestamp5 = time.time()
                     cache_idx, batch_x = batch_cache.get()
                     party.set_batch(batch_x)
-                    # party.set_h(h)
 
                     print(f'client local update with batch {cache_idx}\n')
                     party.compute_h()
                     party.pull_grad(grad)
                     party.local_update()
                     party.local_iterations()
-                    # timestamp6 = time.time()
-                    # t3 += timestamp6 - timestamp5
 
                     waiting_grad_num -= 1
                     global_step += 1
 
             if is_finish:
-                for test_data, _ in test_loader:
-                    predict_x = test_data.to(device)
-                    predict_h = party.predict(predict_x)
-                    if predict_shape is None:
-                        predict_shape = torch.tensor(predict_h.shape)
-                        print('gather shape..', predict_shape)
-                        dist.gather(tensor=predict_shape)
-                        print('gather shape ok')
-                    predict_h_queue.put(predict_h.cpu())
-
-                predict_h_queue.join()
                 while not grad_queue.empty(): grad_queue.get()
                 break
-    
-    predict_h_queue.put(-1)
 
 
 #-----------------------------------------------------------------------------------------------------------#

@@ -185,8 +185,8 @@ def run_ps(args):
             parties_grad_list[i] = grad.contiguous().cpu()
         VAFL_grad_queue_list[party_rank-1].put(parties_grad_list[party_rank-1])
 
-        for _ in range(Q):
-            time.sleep(0.01)
+        # for _ in range(Q):
+        #     time.sleep(0.01)
 
         party.local_update()
         loss = party.get_loss()
