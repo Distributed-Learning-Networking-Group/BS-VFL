@@ -1,0 +1,73 @@
+{
+    "cifar":{
+        "data_dir": "data/cifar10",
+        "client_num": 10,
+        "n_local": [2,2,2,2,2,2,2,2,2,2,2],
+        "bounds": [3,3,3,3,3,3,3,3,3,3,3],
+        "train_batch_size": 256,
+        "test_batch_size": 256,
+        "epochs": 1000,
+        "div": [[],[0,4],[3,7],[6,10],[9,13],[12,16],[15,19],[18,22],[21,25],[24,28],[28,32]],
+        "lr": 0.01,
+        "delta_T": 20,
+        "CT": 1000,
+        "Tw": 20,
+        "c0": 1,
+        "estimation_D": 5,
+        "search_CT": 50
+    },
+
+    "mimic":{
+        "data_dir": "data/mimic",
+        "client_num": 10,
+        "n_local": [2,2,2,2,2,2,2,2,2,2,2],
+        "bounds": [3,3,3,3,3,3,3,3,3,3,3],
+        "train_batch_size": 128,
+        "test_batch_size": 256,
+        "epochs": 1000,
+        "div": [0,7,14,21,28,35,42,49,56,63,70,76],
+        "lr": 0.01,
+        "delta_T": 20,
+        "CT": 2000,
+        "Tw": 20,
+        "c0": 0.2,
+        "estimation_D": 5,
+        "search_CT": 50
+    },
+
+    "imagenet":{
+        "data_dir": "data/imagenet/",
+        "client_num": 10,
+        "n_local": [2,2,2,2,2,2,2,2,2,2,2],
+        "bounds": [5,5,5,5,5,5,5,5,5,5,5],
+        "train_batch_size": 128,
+        "test_batch_size": 256,
+        "epochs": 1000,
+        "div": [[],[0,10],[10,18],[18,26],[26,34],[34,42],[42,50],[50,58],[58,66],[66,74],[74,84]],
+        "lr": 0.01,
+        "delta_T": 20,
+        "CT": 3000,
+        "Tw": 20,
+        "c0": 1,
+        "estimation_D": 5,
+        "search_CT": 50
+    },
+
+    "agnews":{
+        "data_dir": "data/ag_news/",
+        "client_num": 7,
+        "n_local": [2,2,2,2,2,2,2,2],
+        "bounds": [3,3,3,3,3,3,3,3,3],
+        "train_batch_size": 64,
+        "test_batch_size": 64,
+        "epochs": 1000,
+        "div": [0,0.15,0.3,0.45,0.6,0.75,0.9,1],
+        "lr": 2e-5,
+        "delta_T": 20,
+        "CT": 3000,
+        "Tw": 20,
+        "c0": 1,
+        "estimation_D": 5,
+        "search_CT": 50
+    }
+}
